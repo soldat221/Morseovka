@@ -15,6 +15,7 @@ class MorseViewModel(
     var morseCodeText = mutableStateOf("")
     var isBlinking = mutableStateOf(false)
     var repeatBlinking = mutableStateOf(false)
+    val isDarkMode = mutableStateOf(false)
 
     private val cameraId: String = cameraManager.cameraIdList[0] // Použijeme hlavní kameru
 

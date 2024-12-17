@@ -1,68 +1,118 @@
 package com.example.morseovka
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-//import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.text.style.TextAlign
 
 @Composable
-fun MorseScreen(viewModel: MorseViewModel = viewModel()) {
+fun MorseScreen(viewModel: MorseViewModel) {
     val inputText by viewModel.inputText
-    val morseCodeText by viewModel.morseCodeText
+    val morseCode by viewModel.morseCodeText
     val isBlinking by viewModel.isBlinking
     val repeatBlinking by viewModel.repeatBlinking
+    val isDarkMode by viewModel.isDarkMode
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+    val backgroundColor = if (isDarkMode) Color.Black else Color.White
+    val textColor = if (isDarkMode) Color.White else Color.Black
+    val textFieldBackground = if (isDarkMode) Color.DarkGray else Color.LightGray
+    val placeholderColor = if (isDarkMode) Color.Gray else Color.DarkGray
+
+    MaterialTheme(
+        colorScheme = if (isDarkMode) darkColorScheme() else lightColorScheme()
     ) {
-        BasicTextField(
-            value = inputText,
-            onValueChange = { newText ->
-                // Filtrovat pouze platné znaky (A-Z, 0-9 a mezery)
-                val filteredText = newText.uppercase().filter { it in "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 " }
-                viewModel.onTextChanged(filteredText)
-            },
-            modifier = Modifier.fillMaxWidth(),
-            decorationBox = { innerTextField ->
-                Box(modifier = Modifier.padding(16.dp)) {
-                    if (inputText.isEmpty()) {
-                        Text("Zadejte text")
+        Surface(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(backgroundColor),
+            color = backgroundColor
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    Text("Dark Mode", color = textColor, modifier = Modifier.padding(end = 8.dp))
+                    Switch(
+                        checked = isDarkMode,
+                        onCheckedChange = { viewModel.isDarkMode.value = it }
+                    )
+                }
+
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Text("Zadejte text:", color = textColor)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    BasicTextField(
+                        value = inputText,
+                        onValueChange = { newText ->
+                            val filteredText =
+                                newText.uppercase().filter { it in "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 " }
+                            viewModel.onTextChanged(filteredText)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color.Gray.copy(alpha = 0.1f))
+                            .padding(8.dp),
+                        textStyle = LocalTextStyle.current.copy(color = textColor),
+                        decorationBox = { innerTextField ->
+                            Box {
+                                if (inputText.isEmpty()) {
+                                    Text(
+                                        "Zadejte text",
+                                        color = placeholderColor
+                                    )
+                                }
+                                innerTextField()
+                            }
+                        }
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    "Morseovka: $morseCode",
+                    color = textColor,
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Button(onClick = { viewModel.startBlinking() }) {
+                        Text("Spustit blikání")
                     }
-                    innerTextField()
+                    Button(onClick = { viewModel.stopBlinking() }) {
+                        Text("Zastavit blikání")
+                    }
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(
+                        checked = repeatBlinking,
+                        onCheckedChange = { viewModel.repeatBlinking.value = it }
+                    )
+                    Text("Opakovat zprávu", color = textColor)
                 }
             }
-        )
-
-        Text(text = "Morseovka: $morseCodeText")
-
-        Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-            Checkbox(
-                checked = repeatBlinking,
-                onCheckedChange = { viewModel.repeatBlinking.value = it }
-            )
-            Text("Opakovat")
-        }
-
-        Button(
-            onClick = { viewModel.startBlinking() },
-            enabled = !isBlinking
-        ) {
-            Text("Blikat")
-        }
-
-        Button(
-            onClick = { viewModel.stopBlinking() },
-            enabled = isBlinking
-        ) {
-            Text("Zastavit blikání")
         }
     }
 }
