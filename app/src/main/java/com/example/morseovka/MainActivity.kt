@@ -17,6 +17,8 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.morseovka.ui.theme.MorseovkaTheme
 
 class MainActivity : ComponentActivity() {
+    private lateinit var morseViewModel: MorseViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -25,11 +27,17 @@ class MainActivity : ComponentActivity() {
 
         // Vytvoření MorseViewModel s CameraManagerem
         val viewModelFactory = MorseViewModelFactory(cameraManager)
-        val morseViewModel = ViewModelProvider(this, viewModelFactory)[MorseViewModel::class.java]
+        morseViewModel = ViewModelProvider(this, viewModelFactory)[MorseViewModel::class.java]
+        morseViewModel.loadSettings(this)
 
         setContent {
             MorseScreen(viewModel = morseViewModel)
         }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        morseViewModel.saveSettings(this)
     }
 }
 

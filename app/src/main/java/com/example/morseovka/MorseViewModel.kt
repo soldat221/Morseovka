@@ -1,6 +1,8 @@
 package com.example.morseovka
 
+import android.content.Context
 import android.hardware.camera2.CameraManager
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,6 +17,8 @@ class MorseViewModel(
     var morseCodeText = mutableStateOf("")
     var isBlinking = mutableStateOf(false)
     var repeatBlinking = mutableStateOf(false)
+
+    val messageHistory = mutableStateListOf<Message>()
     val isDarkMode = mutableStateOf(false)
 
     private val cameraId: String = cameraManager.cameraIdList[0] // Použijeme hlavní kameru
@@ -81,5 +85,26 @@ class MorseViewModel(
     // Funkce pro zastavení blikání
     fun stopBlinking() {
         isBlinking.value = false
+    }
+
+    fun loadSettings(context: Context) {
+        messageHistory.addAll(MessageHistory.loadHistory(context))
+
+        // Načtení nastavení tmavého režimu
+        val sharedPrefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
+        isDarkMode.value = sharedPrefs.getBoolean("dark_mode", false)
+    }
+
+    fun saveSettings(context: Context) {
+        // Uložení historie zpráv
+        MessageHistory.saveHistory(context, messageHistory)
+
+        // Uložení nastavení tmavého režimu
+        val sharedPrefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
+        sharedPrefs.edit().putBoolean("dark_mode", isDarkMode.value).apply()
+    }
+
+    fun addMessage(message: String) {
+        messageHistory.add(Message(message))
     }
 }
