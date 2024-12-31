@@ -107,4 +107,10 @@ class MorseViewModel(
     fun addMessage(message: String) {
         messageHistory.add(Message(message))
     }
+
+    fun loadMoreMessages() {
+        val currentSize = messageHistory.size
+        val moreMessages = messageHistory.take(currentSize)
+        messageHistory.addAll(moreMessages)
+    }
 }

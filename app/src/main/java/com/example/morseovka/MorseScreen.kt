@@ -1,9 +1,11 @@
 package com.example.morseovka
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -52,7 +54,10 @@ fun MorseScreen(viewModel: MorseViewModel) {
                     )
 
                     LazyColumn(
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        state = rememberLazyListState(),
+                        reverseLayout = false,
+                        contentPadding = PaddingValues(bottom = 16.dp)
                     ) {
                         items(messageHistory) { message ->
                             Text(
@@ -65,7 +70,18 @@ fun MorseScreen(viewModel: MorseViewModel) {
                                         if (isDarkMode) Color.DarkGray else Color.LightGray
                                     )
                                     .padding(8.dp)
+                                    .clickable {
+                                        viewModel.onTextChanged(message.text)
+                                    }
                             )
+                        }
+
+                        item {
+                            LaunchedEffect(messageHistory.size) {
+                                if (messageHistory.isNotEmpty()) {
+                                    viewModel.loadMoreMessages()
+                                }
+                            }
                         }
                     }
 
