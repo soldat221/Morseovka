@@ -59,7 +59,7 @@ fun MorseScreen(viewModel: MorseViewModel) {
                         reverseLayout = false,
                         contentPadding = PaddingValues(bottom = 16.dp)
                     ) {
-                        items(messageHistory) { message ->
+                        items(viewModel.displayedMessageHistory) { message ->
                             Text(
                                 text = message.text,
                                 color = textColor,
@@ -77,8 +77,8 @@ fun MorseScreen(viewModel: MorseViewModel) {
                         }
 
                         item {
-                            LaunchedEffect(messageHistory.size) {
-                                if (messageHistory.isNotEmpty()) {
+                            LaunchedEffect(viewModel.displayedMessageHistory.size) {
+                                if (viewModel.displayedMessageHistory.isNotEmpty()) {
                                     viewModel.loadMoreMessages()
                                 }
                             }

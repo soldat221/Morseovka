@@ -18,6 +18,10 @@ class MorseViewModel(
     var isBlinking = mutableStateOf(false)
     var repeatBlinking = mutableStateOf(false)
 
+    private val persistentMessageHistory = mutableStateListOf<Message>()
+
+    val displayedMessageHistory = mutableStateListOf<Message>()
+
     val messageHistory = mutableStateListOf<Message>()
     val isDarkMode = mutableStateOf(false)
 
@@ -88,7 +92,8 @@ class MorseViewModel(
     }
 
     fun loadSettings(context: Context) {
-        messageHistory.addAll(MessageHistory.loadHistory(context))
+        persistentMessageHistory.addAll(MessageHistory.loadHistory(context))
+        displayedMessageHistory.addAll(persistentMessageHistory)
 
         // Načtení nastavení tmavého režimu
         val sharedPrefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
@@ -97,7 +102,7 @@ class MorseViewModel(
 
     fun saveSettings(context: Context) {
         // Uložení historie zpráv
-        MessageHistory.saveHistory(context, messageHistory)
+        MessageHistory.saveHistory(context, persistentMessageHistory)
 
         // Uložení nastavení tmavého režimu
         val sharedPrefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
@@ -105,12 +110,14 @@ class MorseViewModel(
     }
 
     fun addMessage(message: String) {
-        messageHistory.add(Message(message))
+        val newMessage = Message(message)
+        persistentMessageHistory.add(newMessage)
+        displayedMessageHistory.add(newMessage)
     }
 
     fun loadMoreMessages() {
-        val currentSize = messageHistory.size
-        val moreMessages = messageHistory.take(currentSize)
-        messageHistory.addAll(moreMessages)
+        val currentSize = persistentMessageHistory.size
+        val moreMessages = persistentMessageHistory.take(currentSize)
+        displayedMessageHistory.addAll(moreMessages)
     }
 }
