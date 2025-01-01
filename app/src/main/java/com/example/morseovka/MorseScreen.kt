@@ -104,7 +104,10 @@ fun MorseScreen(viewModel: MorseViewModel) {
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Button(onClick = { showHistory = true }) {
+                        Button(onClick = {
+                            viewModel.refreshDisplayedHistory()
+                            showHistory = true
+                        }) {
                             Text("Historie")
                         }
 

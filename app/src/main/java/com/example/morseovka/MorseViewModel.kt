@@ -120,4 +120,9 @@ class MorseViewModel(
         val moreMessages = persistentMessageHistory.take(currentSize)
         displayedMessageHistory.addAll(moreMessages)
     }
+
+    fun refreshDisplayedHistory() {
+        displayedMessageHistory.clear()
+        displayedMessageHistory.addAll(persistentMessageHistory)
+    }
 }
